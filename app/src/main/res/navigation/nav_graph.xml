@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_sales">
+
+    <fragment
+        android:id="@+id/nav_dashboard"
+        android:name="com.shopkeeper.pro.ui.dashboard.DashboardFragment"
+        android:label="@string/dashboard" />
+
+    <fragment
+        android:id="@+id/nav_sales"
+        android:name="com.shopkeeper.pro.ui.sales.SalesFragment"
+        android:label="@string/sales" />
+
+    <fragment
+        android:id="@+id/nav_expenses"
+        android:name="com.shopkeeper.pro.ui.expenses.ExpensesFragment"
+        android:label="@string/expenses" />
+
+    <fragment
+        android:id="@+id/nav_reports"
+        android:name="com.shopkeeper.pro.ui.reports.ReportsFragment"
+        android:label="@string/reports" />
+
+</navigation>

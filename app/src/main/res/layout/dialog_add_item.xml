@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#FFFFFF">
+
+    <!-- Item Name -->
+    <TextView
+        android:id="@+id/tv_item_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Podipp"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Price Hint -->
+    <TextView
+        android:id="@+id/tv_price_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Suggested: ₹10 per kg"
+        android:textSize="16sp"
+        android:textColor="#666666"
+        android:gravity="center"
+        android:layout_marginBottom="24dp"/>
+
+    <!-- Quantity Input -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Quantity:"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="16dp"/>
+
+        <EditText
+            android:id="@+id/et_quantity"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:hint="1.0"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:inputType="numberDecimal"
+            android:background="@drawable/edittext_bg"
+            android:padding="16dp"/>
+
+        <TextView
+            android:id="@+id/tv_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="kg"
+            android:textSize="18sp"
+            android:layout_marginStart="8dp"/>
+
+    </LinearLayout>
+
+    <!-- Price Input -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Price per unit: ₹"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="8dp"/>
+
+        <EditText
+            android:id="@+id/et_price"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:hint="10.00"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:inputType="numberDecimal"
+            android:background="@drawable/edittext_bg"
+            android:padding="16dp"/>
+
+    </LinearLayout>
+
+    <!-- Total Display -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="#E8F5E8"
+        android:padding="16dp"
+        android:layout_marginBottom="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total: "
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#2E7D32"/>
+
+        <TextView
+            android:id="@+id/tv_total"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₹ 0.00"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#2E7D32"/>
+
+    </LinearLayout>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Cancel"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:background="#9E9E9E"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/btn_add_to_sale"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="Add to Sale"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:background="#4CAF50"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#F5F5F5">
+
+    <!-- Today's Expenses Display -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="6dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:background="#FFFFFF">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Today's Expenses"
+                android:textSize="18sp"
+                android:textColor="#666666"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/tv_today_expenses"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="₹ 0.00"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="#F44336"
+                android:gravity="center"
+                android:layout_marginTop="8dp"/>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- Expense Categories Grid -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="20dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="6dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="#FFFFFF">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add Expense"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#333333"
+                android:gravity="center"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Categories Grid Layout -->
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:rowCount="4"
+                android:alignmentMode="alignMargins">
+
+                <!-- Purchase -->
+                <Button
+                    android:id="@+id/btn_purchase"
+                    android:layout_width="0dp"
+                    android:layout_height="70dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    android:text="Purchase"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="#2196F3"
+                    android:textColor="#FFFFFF" />
+
+                <!-- Daily Wages -->
+                <Button
+                    android:id="@+id/btn_daily_wages"
+                    android:layout_width="0dp"
+                    android:layout_height="70dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    android:text="Daily Wages"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="#2196F3"
+                    android:textColor="#FFFFFF" />
+
+                <!-- Bills -->
+                <Button
+                    android:id="@+id/btn_bills"
+                    android:layout_width="0dp"
+                    android:layout_height="70dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    android:text="Bills"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="#2196F3"
+                    android:textColor="#FFFFFF" />
+
+                <!-- Rent -->
+                <Button
+                    android:id="@+id/btn_rent"
+                    android:layout_width="0dp"
+                    android:layout_height="70dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    android:text="Rent"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="#2196F3"
+                    android:textColor="#FFFFFF" />
+
+                <!-- Electricity -->
+                <Button
+                    android:id="@+id/btn_electricity"
+                    android:layout_width="0dp"
+                    android:layout_height="70dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    android:text="Electricity"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="#2196F3"
+                    android:textColor="#FFFFFF" />
+
+                <!-- Transport -->
+                <Button
+                    android:id="@+id/btn_transport"
+                    android:layout_width="0dp"
+                    android:layout_height="70dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    android:text="Transport"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="#2196F3"
+                    android:textColor="#FFFFFF" />
+
+                <!-- Other -->
+                <Button
+                    android:id="@+id/btn_other"
+                    android:layout_width="0dp"
+                    android:layout_height="70dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    android:text="Other"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="#FF9800"
+                    android:textColor="#FFFFFF" />
+
+                <!-- View All Expenses -->
+                <Button
+                    android:id="@+id/btn_view_all"
+                    android:layout_width="0dp"
+                    android:layout_height="70dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="8dp"
+                    android:text="View All\nExpenses"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:background="#4CAF50"
+                    android:textColor="#FFFFFF" />
+
+            </GridLayout>
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>
