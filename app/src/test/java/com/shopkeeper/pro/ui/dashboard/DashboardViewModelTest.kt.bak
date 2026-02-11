@@ -1,0 +1,203 @@
+package com.shopkeeper.pro.ui.dashboard
+
+import android.app.Application
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.google.common.truth.Truth.assertThat
+import com.shopkeeper.pro.data.dao.ExpenseDao
+import com.shopkeeper.pro.data.dao.ItemDao
+import com.shopkeeper.pro.data.dao.SaleDao
+import com.shopkeeper.pro.data.database.ShopKeeperDatabase
+import com.shopkeeper.pro.testutils.TestData
+import com.shopkeeper.pro.ui.auth.TestCoroutineRule
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito.*
+import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.any
+import org.mockito.kotlin.whenever
+import java.util.*
+
+@ExperimentalCoroutinesApi
+@RunWith(MockitoJUnitRunner::class)
+class DashboardViewModelTest {
+
+    @get:Rule
+    val instantExecutorRule = InstantTaskExecutorRule()
+
+    @get:Rule
+    val coroutineTestRule = TestCoroutineRule()
+
+    @Mock
+    private lateinit var application: Application
+
+    @Mock
+    private lateinit var database: ShopKeeperDatabase
+
+    @Mock
+    private lateinit var saleDao: SaleDao
+
+    @Mock
+    private lateinit var expenseDao: ExpenseDao
+
+    @Mock
+    private lateinit var itemDao: ItemDao
+
+    private lateinit var viewModel: DashboardViewModel
+
+    @Before
+    fun setup() {
+        // Mock database and DAOs
+        whenever(database.saleDao()).thenReturn(saleDao)
+        whenever(database.expenseDao()).thenReturn(expenseDao)
+        whenever(database.itemDao()).thenReturn(itemDao)
+
+        // Mock static database getter
+        mockStatic(ShopKeeperDatabase::class.java).use { mockedStatic ->
+            mockedStatic.`when`<ShopKeeperDatabase> {
+                ShopKeeperDatabase.getDatabase(application)
+            }.thenReturn(database)
+
+            // Create view model
+            viewModel = DashboardViewModel(application)
+        }
+    }
+
+    @Test
+    fun `when dashboard data is loaded then all metrics are calculated correctly`() = runTest {
+        // Given
+        val todaySales = 5000.0
+        val todayExpenses = 1500.0
+        val testItems = TestData.createDefaultItems("test_user")
+
+        whenever(saleDao.getTotalSalesForDate(any())).thenReturn(todaySales)
+        whenever(expenseDao.getTotalExpensesForDate(any())).thenReturn(todayExpenses)
+        whenever(itemDao.getAllActiveItems()).thenReturn(flow { emit(testItems) })
+
+        // When
+        viewModel.loadDashboardData()
+        advanceUntilIdle()
+
+        // Then
+        val dashboardData = viewModel.dashboardData.value
+        assertThat(dashboardData.todaySales).isEqualTo(todaySales)
+        assertThat(dashboardData.todayExpenses).isEqualTo(todayExpenses)
+        assertThat(dashboardData.totalItems).isEqualTo(testItems.size)
+    }
+
+    @Test
+    fun `when no sales or expenses exist then dashboard shows zeros`() = runTest {
+        // Given
+        whenever(saleDao.getTotalSalesForDate(any())).thenReturn(null)
+        whenever(expenseDao.getTotalExpensesForDate(any())).thenReturn(null)
+        whenever(itemDao.getAllActiveItems()).thenReturn(flow { emit(emptyList()) })
+
+        // When
+        viewModel.loadDashboardData()
+        advanceUntilIdle()
+
+        // Then
+        val dashboardData = viewModel.dashboardData.value
+        assertThat(dashboardData.todaySales).isEqualTo(0.0)
+        assertThat(dashboardData.todayExpenses).isEqualTo(0.0)
+        assertThat(dashboardData.totalItems).isEqualTo(0)
+    }
+
+    @Test
+    fun `when database throws exception then dashboard shows default values`() = runTest {
+        // Given
+        whenever(saleDao.getTotalSalesForDate(any())).thenThrow(RuntimeException("Database error"))
+
+        // When
+        viewModel.loadDashboardData()
+        advanceUntilIdle()
+
+        // Then
+        val dashboardData = viewModel.dashboardData.value
+        assertThat(dashboardData.todaySales).isEqualTo(0.0)
+        assertThat(dashboardData.todayExpenses).isEqualTo(0.0)
+        assertThat(dashboardData.totalItems).isEqualTo(0)
+    }
+
+    @Test
+    fun `initial dashboard data has zero values`() {
+        // Then
+        val dashboardData = viewModel.dashboardData.value
+        assertThat(dashboardData.todaySales).isEqualTo(0.0)
+        assertThat(dashboardData.todayExpenses).isEqualTo(0.0)
+        assertThat(dashboardData.totalItems).isEqualTo(0)
+    }
+
+    @Test
+    fun `profit is calculated correctly`() = runTest {
+        // Given
+        val todaySales = 10000.0
+        val todayExpenses = 3000.0
+
+        whenever(saleDao.getTotalSalesForDate(any())).thenReturn(todaySales)
+        whenever(expenseDao.getTotalExpensesForDate(any())).thenReturn(todayExpenses)
+        whenever(itemDao.getAllActiveItems()).thenReturn(flow { emit(emptyList()) })
+
+        // When
+        viewModel.loadDashboardData()
+        advanceUntilIdle()
+
+        // Then
+        val dashboardData = viewModel.dashboardData.value
+        val profit = dashboardData.todaySales - dashboardData.todayExpenses
+        assertThat(profit).isEqualTo(7000.0)
+    }
+
+    @Test
+    fun `when items flow emits multiple times then latest value is used`() = runTest {
+        // Given
+        val firstItems = listOf(TestData.createTestItem(name = "Item 1"))
+        val secondItems = TestData.createDefaultItems("test_user")
+
+        whenever(saleDao.getTotalSalesForDate(any())).thenReturn(0.0)
+        whenever(expenseDao.getTotalExpensesForDate(any())).thenReturn(0.0)
+        whenever(itemDao.getAllActiveItems()).thenReturn(
+            flow {
+                emit(firstItems)
+                emit(secondItems)
+            }
+        )
+
+        // When
+        viewModel.loadDashboardData()
+        advanceUntilIdle()
+
+        // Then
+        val dashboardData = viewModel.dashboardData.value
+        assertThat(dashboardData.totalItems).isEqualTo(secondItems.size)
+    }
+
+    @Test
+    fun `verify correct date is passed to DAOs`() = runTest {
+        // Given
+        whenever(saleDao.getTotalSalesForDate(any())).thenReturn(0.0)
+        whenever(expenseDao.getTotalExpensesForDate(any())).thenReturn(0.0)
+        whenever(itemDao.getAllActiveItems()).thenReturn(flow { emit(emptyList()) })
+
+        // When
+        viewModel.loadDashboardData()
+        advanceUntilIdle()
+
+        // Then
+        verify(saleDao).getTotalSalesForDate(argThat { date ->
+            // Verify it's today's date (within a reasonable time window)
+            val now = Date()
+            kotlin.math.abs(date.time - now.time) < 5000 // Within 5 seconds
+        })
+        verify(expenseDao).getTotalExpensesForDate(argThat { date ->
+            val now = Date()
+            kotlin.math.abs(date.time - now.time) < 5000
+        })
+    }
+}

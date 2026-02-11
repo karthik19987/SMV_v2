@@ -23,4 +23,7 @@ interface ItemDao {
 
     @Query("SELECT * FROM items WHERE name LIKE '%' || :searchQuery || '%' AND isActive = 1")
     fun searchItems(searchQuery: String): Flow<List<Item>>
+
+    @Query("SELECT * FROM items WHERE isActive = 1 ORDER BY name")
+    suspend fun getAllActiveItemsOnce(): List<Item>
 }

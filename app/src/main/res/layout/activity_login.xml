@@ -11,7 +11,7 @@
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_marginBottom="32dp"
-        android:src="@mipmap/ic_launcher"
+        android:src="@drawable/ic_launcher"
         android:contentDescription="App Logo" />
 
     <TextView
@@ -66,14 +66,15 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnLogin"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:text="Login"
         android:textSize="16sp"
         android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/purple_500" />
+        style="@style/Widget.MaterialComponents.Button"
+        app:backgroundTint="@color/purple_500" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -83,14 +84,39 @@
         android:layout_marginBottom="16dp"
         android:textColor="?android:attr/textColorSecondary" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCreateUser"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:text="Create Demo User"
         android:textSize="16sp"
-        style="@style/Widget.Material3.Button.OutlinedButton"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         app:strokeColor="@color/purple_500"
         android:textColor="@color/purple_500" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Default Credentials:"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="?android:attr/textColorSecondary" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Admin: admin / admin123"
+        android:textSize="12sp"
+        android:textColor="?android:attr/textColorSecondary" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="User: user1 / 1234"
+        android:textSize="12sp"
+        android:textColor="?android:attr/textColorSecondary" />
 
 </LinearLayout>

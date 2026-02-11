@@ -22,6 +22,15 @@ interface SaleDao {
     @Insert
     suspend fun insertSale(sale: Sale)
 
+    @Update
+    suspend fun updateSale(sale: Sale)
+
     @Query("DELETE FROM sales WHERE id = :id")
-    suspend fun deleteSale(id: String)
+    suspend fun deleteSaleById(id: String)
+
+    @Delete
+    suspend fun deleteSale(sale: Sale)
+
+    @Query("DELETE FROM sales")
+    suspend fun deleteAllSales()
 }

@@ -1,0 +1,216 @@
+package com.shopkeeper.pro.data.repository
+
+import com.google.common.truth.Truth.assertThat
+import com.shopkeeper.pro.data.dao.ItemDao
+import com.shopkeeper.pro.data.entity.Item
+import com.shopkeeper.pro.data.entity.ItemCategory
+import com.shopkeeper.pro.testutils.TestData
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito.*
+import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
+
+@RunWith(MockitoJUnitRunner::class)
+class ItemRepositoryTest {
+
+    @Mock
+    private lateinit var itemDao: ItemDao
+
+    private lateinit var repository: ItemRepository
+
+    @Before
+    fun setup() {
+        repository = ItemRepository(itemDao)
+    }
+
+    @Test
+    fun `getAllItems returns flow from dao`() = runTest {
+        // Given
+        val testItems = TestData.createDefaultItems("test_user")
+        whenever(itemDao.getAllActiveItems()).thenReturn(flow { emit(testItems) })
+
+        // When
+        val result = repository.getAllItems().first()
+
+        // Then
+        assertThat(result).isEqualTo(testItems)
+        verify(itemDao).getAllActiveItems()
+    }
+
+    @Test
+    fun `getItemById returns item from dao`() = runTest {
+        // Given
+        val testItem = TestData.createTestItem(id = "item_123")
+        whenever(itemDao.getItemById("item_123")).thenReturn(testItem)
+
+        // When
+        val result = repository.getItemById("item_123")
+
+        // Then
+        assertThat(result).isEqualTo(testItem)
+        verify(itemDao).getItemById("item_123")
+    }
+
+    @Test
+    fun `getItemById returns null when item not found`() = runTest {
+        // Given
+        whenever(itemDao.getItemById("non_existent")).thenReturn(null)
+
+        // When
+        val result = repository.getItemById("non_existent")
+
+        // Then
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun `insertItem calls dao insert`() = runTest {
+        // Given
+        val testItem = TestData.createTestItem()
+
+        // When
+        repository.insertItem(testItem)
+
+        // Then
+        verify(itemDao).insertItem(testItem)
+    }
+
+    @Test
+    fun `updateItem calls dao update`() = runTest {
+        // Given
+        val testItem = TestData.createTestItem()
+
+        // When
+        repository.updateItem(testItem)
+
+        // Then
+        verify(itemDao).updateItem(testItem)
+    }
+
+    @Test
+    fun `deleteItem calls dao delete`() = runTest {
+        // Given
+        val itemId = "item_to_delete"
+
+        // When
+        repository.deleteItem(itemId)
+
+        // Then
+        verify(itemDao).deleteItem(itemId)
+    }
+
+    @Test
+    fun `searchItems returns flow from dao`() = runTest {
+        // Given
+        val query = "test"
+        val matchingItems = listOf(
+            TestData.createTestItem(name = "Test Item 1"),
+            TestData.createTestItem(name = "Test Item 2")
+        )
+        whenever(itemDao.searchItems(query)).thenReturn(flow { emit(matchingItems) })
+
+        // When
+        val result = repository.searchItems(query).first()
+
+        // Then
+        assertThat(result).isEqualTo(matchingItems)
+        verify(itemDao).searchItems(query)
+    }
+
+    @Test
+    fun `insertDefaultItems creates all default items`() = runTest {
+        // Given
+        val userId = "test_user_123"
+        val itemCaptor = argumentCaptor<Item>()
+
+        // When
+        repository.insertDefaultItems(userId)
+
+        // Then
+        verify(itemDao, times(5)).insertItem(itemCaptor.capture())
+
+        val insertedItems = itemCaptor.allValues
+        assertThat(insertedItems).hasSize(5)
+
+        // Verify first item - Podipp
+        assertThat(insertedItems[0].name).isEqualTo("Podipp")
+        assertThat(insertedItems[0].category).isEqualTo(ItemCategory.PRODUCT)
+        assertThat(insertedItems[0].pricePerKg).isEqualTo(50.0)
+        assertThat(insertedItems[0].unit).isEqualTo("kg")
+        assertThat(insertedItems[0].createdBy).isEqualTo(userId)
+
+        // Verify second item - Chilly
+        assertThat(insertedItems[1].name).isEqualTo("Chilly")
+        assertThat(insertedItems[1].pricePerKg).isEqualTo(80.0)
+
+        // Verify third item - Malli
+        assertThat(insertedItems[2].name).isEqualTo("Malli")
+        assertThat(insertedItems[2].pricePerKg).isEqualTo(120.0)
+
+        // Verify fourth item - Unda
+        assertThat(insertedItems[3].name).isEqualTo("Unda")
+        assertThat(insertedItems[3].pricePerKg).isNull()
+        assertThat(insertedItems[3].unit).isEqualTo("pc")
+
+        // Verify fifth item - Repair Service
+        assertThat(insertedItems[4].name).isEqualTo("Repair Service")
+        assertThat(insertedItems[4].category).isEqualTo(ItemCategory.SERVICE)
+        assertThat(insertedItems[4].pricePerKg).isNull()
+        assertThat(insertedItems[4].unit).isEqualTo("service")
+    }
+
+    @Test
+    fun `insertDefaultItems sets unique ids for each item`() = runTest {
+        // Given
+        val userId = "test_user"
+        val itemCaptor = argumentCaptor<Item>()
+
+        // When
+        repository.insertDefaultItems(userId)
+
+        // Then
+        verify(itemDao, times(5)).insertItem(itemCaptor.capture())
+
+        val insertedItems = itemCaptor.allValues
+        val uniqueIds = insertedItems.map { it.id }.toSet()
+
+        // All IDs should be unique
+        assertThat(uniqueIds).hasSize(5)
+    }
+
+    @Test
+    fun `insertDefaultItems continues even if one insert fails`() = runTest {
+        // Given
+        val userId = "test_user"
+        var callCount = 0
+
+        // First insert fails, others succeed
+        whenever(itemDao.insertItem(any())).thenAnswer {
+            callCount++
+            if (callCount == 1) {
+                throw RuntimeException("Insert failed")
+            }
+            // Success for other calls
+            null
+        }
+
+        // When
+        try {
+            repository.insertDefaultItems(userId)
+        } catch (e: Exception) {
+            // Expected for first item
+        }
+
+        // Then - verify all items were attempted despite first failure
+        verify(itemDao, times(5)).insertItem(any())
+    }
+}

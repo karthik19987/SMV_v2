@@ -1,0 +1,54 @@
+#!/bin/sh
+# Pre-commit hook for ShopKeeper Pro
+# Runs unit tests and checks coverage before allowing commits
+
+echo "🧪 Running unit tests..."
+./gradlew test
+
+if [ $? -ne 0 ]; then
+    echo "❌ Tests failed! Commit aborted."
+    echo "Please fix the failing tests before committing."
+    exit 1
+fi
+
+echo "📊 Generating test coverage report..."
+./gradlew jacocoTestReport
+
+# Check if coverage report was generated
+if [ ! -f "app/build/reports/jacoco/test/jacocoTestReport.xml" ]; then
+    echo "⚠️  Coverage report not generated. Running with test task..."
+    ./gradlew clean test jacocoTestReport
+fi
+
+# Extract coverage percentage from the XML report
+if [ -f "app/build/reports/jacoco/test/jacocoTestReport.xml" ]; then
+    # Parse coverage from XML report
+    covered=$(grep -oE 'type="LINE"[^>]*covered="[0-9]+"' app/build/reports/jacoco/test/jacocoTestReport.xml | head -1 | grep -oE 'covered="[0-9]+"' | grep -oE '[0-9]+')
+    missed=$(grep -oE 'type="LINE"[^>]*missed="[0-9]+"' app/build/reports/jacoco/test/jacocoTestReport.xml | head -1 | grep -oE 'missed="[0-9]+"' | grep -oE '[0-9]+')
+
+    if [ -n "$covered" ] && [ -n "$missed" ]; then
+        total=$((covered + missed))
+        if [ $total -gt 0 ]; then
+            percent=$((covered * 100 / total))
+
+            echo "📈 Current test coverage: $percent%"
+
+            if [ $percent -lt 80 ]; then
+                echo "❌ Test coverage is $percent%, minimum required is 80%"
+                echo "Please add more tests to increase coverage."
+                echo "View detailed report at: app/build/reports/jacoco/test/html/index.html"
+                exit 1
+            fi
+
+            echo "✅ All tests passed with $percent% coverage!"
+        else
+            echo "⚠️  Warning: Could not calculate coverage percentage"
+        fi
+    else
+        echo "⚠️  Warning: Could not parse coverage data from report"
+    fi
+else
+    echo "⚠️  Warning: Coverage report not found, skipping coverage check"
+fi
+
+echo "✨ Pre-commit checks passed! Proceeding with commit..."

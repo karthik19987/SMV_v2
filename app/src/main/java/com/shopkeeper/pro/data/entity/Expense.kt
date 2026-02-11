@@ -12,7 +12,8 @@ data class Expense(
     val category: ExpenseCategory,
     val description: String,
     val amount: Double,
-    val createdAt: Date
+    val createdAt: Date,
+    val imageUri: String? = null
 )
 
 enum class ExpenseCategory {

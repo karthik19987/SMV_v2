@@ -1,0 +1,230 @@
+package com.shopkeeper.pro.ui.auth
+
+import android.app.Application
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.google.common.truth.Truth.assertThat
+import com.shopkeeper.pro.data.dao.ItemDao
+import com.shopkeeper.pro.data.dao.UserDao
+import com.shopkeeper.pro.data.database.ShopKeeperDatabase
+import com.shopkeeper.pro.data.entity.User
+import com.shopkeeper.pro.data.repository.ItemRepository
+import com.shopkeeper.pro.testutils.TestData
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.*
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito.*
+import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.*
+
+@ExperimentalCoroutinesApi
+@RunWith(MockitoJUnitRunner::class)
+class LoginViewModelTest {
+
+    @get:Rule
+    val instantExecutorRule = InstantTaskExecutorRule()
+
+    @get:Rule
+    val coroutineTestRule = TestCoroutineRule()
+
+    @Mock
+    private lateinit var application: Application
+
+    @Mock
+    private lateinit var database: ShopKeeperDatabase
+
+    @Mock
+    private lateinit var userDao: UserDao
+
+    @Mock
+    private lateinit var itemDao: ItemDao
+
+    @Mock
+    private lateinit var itemRepository: ItemRepository
+
+    private lateinit var viewModel: LoginViewModel
+
+    @Before
+    fun setup() {
+        // Mock database and DAOs
+        whenever(database.userDao()).thenReturn(userDao)
+        whenever(database.itemDao()).thenReturn(itemDao)
+
+        // Mock static database getter
+        mockStatic(ShopKeeperDatabase::class.java).use { mockedStatic ->
+            mockedStatic.`when`<ShopKeeperDatabase> {
+                ShopKeeperDatabase.getDatabase(application)
+            }.thenReturn(database)
+
+            // Mock UserPreferences static methods
+            mockStatic(UserPreferences::class.java).use { userPrefMock ->
+                // Create view model
+                viewModel = LoginViewModel(application)
+            }
+        }
+    }
+
+    @Test
+    fun `when user enters valid credentials then login succeeds`() = runTest {
+        // Given
+        val testUser = TestData.createTestUser()
+        whenever(userDao.getUserByUsername("testuser")).thenReturn(testUser)
+
+        mockStatic(UserPreferences::class.java).use { userPrefMock ->
+            // When
+            viewModel.login("testuser", "any_password")
+
+            // Then
+            advanceUntilIdle()
+            val state = viewModel.loginState.value
+            assertThat(state).isInstanceOf(LoginState.Success::class.java)
+            assertThat((state as LoginState.Success).user).isEqualTo(testUser)
+        }
+    }
+
+    @Test
+    fun `when user enters invalid username then login fails`() = runTest {
+        // Given
+        whenever(userDao.getUserByUsername("invalid")).thenReturn(null)
+
+        // When
+        viewModel.login("invalid", "password")
+
+        // Then
+        advanceUntilIdle()
+        val state = viewModel.loginState.value
+        assertThat(state).isInstanceOf(LoginState.Error::class.java)
+        assertThat((state as LoginState.Error).message).contains("Invalid username")
+    }
+
+    @Test
+    fun `when user is inactive then login fails`() = runTest {
+        // Given
+        val inactiveUser = TestData.createTestUser(isActive = false)
+        whenever(userDao.getUserByUsername("testuser")).thenReturn(inactiveUser)
+
+        // When
+        viewModel.login("testuser", "password")
+
+        // Then
+        advanceUntilIdle()
+        val state = viewModel.loginState.value
+        assertThat(state).isInstanceOf(LoginState.Error::class.java)
+        assertThat((state as LoginState.Error).message).contains("inactive")
+    }
+
+    @Test
+    fun `when database throws exception then login fails with error message`() = runTest {
+        // Given
+        whenever(userDao.getUserByUsername(any())).thenThrow(RuntimeException("Database error"))
+
+        // When
+        viewModel.login("testuser", "password")
+
+        // Then
+        advanceUntilIdle()
+        val state = viewModel.loginState.value
+        assertThat(state).isInstanceOf(LoginState.Error::class.java)
+        assertThat((state as LoginState.Error).message).contains("Database error")
+    }
+
+    @Test
+    fun `when createDemoUser is called then demo user is created successfully`() = runTest {
+        // Given
+        mockStatic(UserPreferences::class.java).use { userPrefMock ->
+            // Mock ItemRepository to avoid actual database calls
+            val mockedItemRepo = mock(ItemRepository::class.java)
+
+            // Use reflection to replace the itemRepository field
+            val itemRepoField = LoginViewModel::class.java.getDeclaredField("itemRepository")
+            itemRepoField.isAccessible = true
+            itemRepoField.set(viewModel, mockedItemRepo)
+
+            // When
+            viewModel.createDemoUser()
+
+            // Then
+            advanceUntilIdle()
+
+            // Verify user was inserted
+            verify(userDao).insertUser(argThat { user ->
+                user.username == "admin" &&
+                user.displayName == "Shop Admin" &&
+                user.role == "owner" &&
+                user.isActive
+            })
+
+            // Verify default items were created
+            verify(mockedItemRepo).insertDefaultItems(any())
+
+            // Verify state is success
+            val state = viewModel.loginState.value
+            assertThat(state).isInstanceOf(LoginState.Success::class.java)
+            assertThat((state as LoginState.Success).user.username).isEqualTo("admin")
+        }
+    }
+
+    @Test
+    fun `when createDemoUser fails then error state is set`() = runTest {
+        // Given
+        whenever(userDao.insertUser(any())).thenThrow(RuntimeException("Insert failed"))
+
+        // When
+        viewModel.createDemoUser()
+
+        // Then
+        advanceUntilIdle()
+        val state = viewModel.loginState.value
+        assertThat(state).isInstanceOf(LoginState.Error::class.java)
+        assertThat((state as LoginState.Error).message).contains("Failed to create demo user")
+    }
+
+    @Test
+    fun `initial state is idle`() {
+        // Then
+        assertThat(viewModel.loginState.value).isInstanceOf(LoginState.Idle::class.java)
+    }
+
+    @Test
+    fun `login sets loading state before processing`() = runTest {
+        // Given
+        val testUser = TestData.createTestUser()
+        whenever(userDao.getUserByUsername("testuser")).thenReturn(testUser)
+
+        mockStatic(UserPreferences::class.java).use { userPrefMock ->
+            // When
+            viewModel.login("testuser", "password")
+
+            // Check immediate state (before coroutine completes)
+            assertThat(viewModel.loginState.value).isInstanceOf(LoginState.Loading::class.java)
+
+            // Let coroutine complete
+            advanceUntilIdle()
+        }
+    }
+}
+
+/**
+ * Test coroutine rule for proper coroutine testing
+ */
+@ExperimentalCoroutinesApi
+class TestCoroutineRule : TestWatcher() {
+    val testDispatcher = StandardTestDispatcher()
+
+    override fun starting(description: Description) {
+        super.starting(description)
+        Dispatchers.setMain(testDispatcher)
+    }
+
+    override fun finished(description: Description) {
+        super.finished(description)
+        Dispatchers.resetMain()
+    }
+}

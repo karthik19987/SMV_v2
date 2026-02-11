@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -79,7 +79,7 @@
                 android:alignmentMode="alignMargins">
 
                 <!-- Purchase -->
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_purchase"
                     android:layout_width="0dp"
                     android:layout_height="70dp"
@@ -88,11 +88,11 @@
                     android:text="Purchase"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:background="#2196F3"
-                    android:textColor="#FFFFFF" />
+                    style="@style/Widget.MaterialComponents.Button"
+                    app:backgroundTint="#2196F3" />
 
                 <!-- Daily Wages -->
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_daily_wages"
                     android:layout_width="0dp"
                     android:layout_height="70dp"
@@ -101,11 +101,11 @@
                     android:text="Daily Wages"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:background="#2196F3"
-                    android:textColor="#FFFFFF" />
+                    style="@style/Widget.MaterialComponents.Button"
+                    app:backgroundTint="#2196F3" />
 
                 <!-- Bills -->
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_bills"
                     android:layout_width="0dp"
                     android:layout_height="70dp"
@@ -114,11 +114,11 @@
                     android:text="Bills"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:background="#2196F3"
-                    android:textColor="#FFFFFF" />
+                    style="@style/Widget.MaterialComponents.Button"
+                    app:backgroundTint="#2196F3" />
 
                 <!-- Rent -->
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_rent"
                     android:layout_width="0dp"
                     android:layout_height="70dp"
@@ -127,11 +127,11 @@
                     android:text="Rent"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:background="#2196F3"
-                    android:textColor="#FFFFFF" />
+                    style="@style/Widget.MaterialComponents.Button"
+                    app:backgroundTint="#2196F3" />
 
                 <!-- Electricity -->
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_electricity"
                     android:layout_width="0dp"
                     android:layout_height="70dp"
@@ -140,11 +140,11 @@
                     android:text="Electricity"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:background="#2196F3"
-                    android:textColor="#FFFFFF" />
+                    style="@style/Widget.MaterialComponents.Button"
+                    app:backgroundTint="#2196F3" />
 
                 <!-- Transport -->
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_transport"
                     android:layout_width="0dp"
                     android:layout_height="70dp"
@@ -153,11 +153,11 @@
                     android:text="Transport"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:background="#2196F3"
-                    android:textColor="#FFFFFF" />
+                    style="@style/Widget.MaterialComponents.Button"
+                    app:backgroundTint="#2196F3" />
 
                 <!-- Other -->
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_other"
                     android:layout_width="0dp"
                     android:layout_height="70dp"
@@ -166,11 +166,11 @@
                     android:text="Other"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:background="#FF9800"
-                    android:textColor="#FFFFFF" />
+                    style="@style/Widget.MaterialComponents.Button"
+                    app:backgroundTint="#FF9800" />
 
                 <!-- View All Expenses -->
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_view_all"
                     android:layout_width="0dp"
                     android:layout_height="70dp"
@@ -179,10 +179,23 @@
                     android:text="View All\nExpenses"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:background="#4CAF50"
-                    android:textColor="#FFFFFF" />
+                    style="@style/Widget.MaterialComponents.Button"
+                    app:backgroundTint="#4CAF50" />
 
             </GridLayout>
+
+            <!-- Purchase History Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_purchase_history"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="16dp"
+                android:text="Purchase History"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:strokeColor="#9C27B0"
+                android:textColor="#9C27B0" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

@@ -34,8 +34,6 @@ class MainActivity : AppCompatActivity() {
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
 
-        binding.bottomNavigation.setupWithNavController(navController)
-
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_dashboard,
@@ -44,6 +42,24 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_reports
             )
         )
+
+        // Set up bottom navigation with proper handling
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            // Clear back stack and navigate to selected destination
+            navController.popBackStack(navController.graph.startDestinationId, false)
+            when (item.itemId) {
+                R.id.nav_dashboard -> navController.navigate(R.id.nav_dashboard)
+                R.id.nav_sales -> navController.navigate(R.id.nav_sales)
+                R.id.nav_expenses -> navController.navigate(R.id.nav_expenses)
+                R.id.nav_reports -> navController.navigate(R.id.nav_reports)
+            }
+            true
+        }
+
+        // Add reselected listener to handle tap on already selected item
+        binding.bottomNavigation.setOnItemReselectedListener {
+            // Do nothing to avoid navigation stack issues
+        }
     }
 
     private fun setupActionBar() {

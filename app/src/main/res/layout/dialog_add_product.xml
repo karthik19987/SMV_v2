@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Product Name -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:boxStrokeColor="@color/purple_500"
+        app:hintTextColor="@color/purple_500">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_product_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Product/Service Name"
+            android:inputType="text"
+            android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Category Spinner -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Category"
+        android:textSize="12sp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:layout_marginBottom="8dp" />
+
+    <Spinner
+        android:id="@+id/spinner_category"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/edittext_bg" />
+
+    <!-- Price Hint (visible for products only) -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_price_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:boxStrokeColor="@color/purple_500"
+        app:hintTextColor="@color/purple_500">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_price_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Price per unit (optional)"
+            android:inputType="numberDecimal"
+            android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Unit Spinner (visible for products only) -->
+    <TextView
+        android:id="@+id/tv_unit_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Unit"
+        android:textSize="12sp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:layout_marginBottom="8dp" />
+
+    <Spinner
+        android:id="@+id/spinner_unit"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@drawable/edittext_bg" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Note: Price hints help with faster sales entry"
+        android:textSize="12sp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:layout_marginTop="8dp"
+        android:padding="8dp"
+        android:background="#F5F5F5" />
+
+</LinearLayout>

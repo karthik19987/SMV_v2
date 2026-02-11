@@ -24,15 +24,13 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 _loginState.value = LoginState.Loading
-                
-                val user = userDao.getUserByUsername(username)
-                if (user != null && user.isActive) {
-                    // In a real app, you'd verify the password here
-                    // For demo purposes, any password works
+
+                val user = userDao.getUserByCredentials(username, password)
+                if (user != null) {
                     UserPreferences.setCurrentUser(getApplication(), user)
                     _loginState.value = LoginState.Success(user)
                 } else {
-                    _loginState.value = LoginState.Error("Invalid username or user is inactive")
+                    _loginState.value = LoginState.Error("Invalid username or password")
                 }
             } catch (e: Exception) {
                 _loginState.value = LoginState.Error("Login failed: ${e.message}")
@@ -43,23 +41,38 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     fun createDemoUser() {
         viewModelScope.launch {
             try {
-                val demoUser = User(
-                    id = "demo_user_${System.currentTimeMillis()}",
+                // Create admin user
+                val adminUser = User(
+                    id = "admin_${System.currentTimeMillis()}",
                     username = "admin",
                     displayName = "Shop Admin",
-                    role = "owner",
+                    role = "admin",
+                    password = "admin123", // Default admin password
                     createdAt = Date(),
                     isActive = true
                 )
-                userDao.insertUser(demoUser)
-                
+                userDao.insertUser(adminUser)
+
+                // Create regular user
+                val regularUser = User(
+                    id = "user_${System.currentTimeMillis()}",
+                    username = "user1",
+                    displayName = "Shop User",
+                    role = "user",
+                    password = "1234", // Default user password
+                    createdAt = Date(),
+                    isActive = true
+                )
+                userDao.insertUser(regularUser)
+
                 // Create default items for the shop
-                itemRepository.insertDefaultItems(demoUser.id)
-                
-                UserPreferences.setCurrentUser(getApplication(), demoUser)
-                _loginState.value = LoginState.Success(demoUser)
+                itemRepository.insertDefaultItems(adminUser.id)
+
+                // Auto-login as admin
+                UserPreferences.setCurrentUser(getApplication(), adminUser)
+                _loginState.value = LoginState.Success(adminUser)
             } catch (e: Exception) {
-                _loginState.value = LoginState.Error("Failed to create demo user: ${e.message}")
+                _loginState.value = LoginState.Error("Failed to create demo users: ${e.message}")
             }
         }
     }

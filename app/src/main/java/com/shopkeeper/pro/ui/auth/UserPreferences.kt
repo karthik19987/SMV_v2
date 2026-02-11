@@ -47,4 +47,8 @@ object UserPreferences {
     fun isLoggedIn(context: Context): Boolean {
         return getCurrentUserId(context) != null
     }
+
+    fun isAdmin(context: Context): Boolean {
+        return getCurrentUserRole(context) == "admin"
+    }
 }

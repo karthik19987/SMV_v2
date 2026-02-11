@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="?attr/selectableItemBackground">
+
+        <!-- Left side: Sale info -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_sale_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sale #123456"
+                android:textSize="16sp"
+                android:textColor="#333333"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_items"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4 items"
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:layout_marginTop="4dp" />
+
+            <TextView
+                android:id="@+id/tv_date_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="01 Jan 2024, 10:00 AM"
+                android:textSize="12sp"
+                android:textColor="#999999"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
+
+        <!-- Right side: Amount and Delete -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tv_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₹100.00"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#4CAF50" />
+
+            <ImageButton
+                android:id="@+id/btn_delete"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_delete"
+                android:tint="#F44336"
+                android:contentDescription="Delete sale" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

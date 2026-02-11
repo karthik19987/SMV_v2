@@ -10,7 +10,12 @@ data class User(
     val id: String,
     val username: String,
     val displayName: String,
-    val role: String = "cashier", // owner, cashier
+    val role: String = "user", // admin, user
+    val password: String = "1234", // Default password
     val createdAt: Date,
     val isActive: Boolean = true
 )
+
+enum class UserRole {
+    ADMIN, USER
+}

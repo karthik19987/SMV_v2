@@ -23,4 +23,7 @@ interface UserDao {
 
     @Query("UPDATE users SET isActive = 0 WHERE id = :id")
     suspend fun deactivateUser(id: String)
+
+    @Query("SELECT * FROM users WHERE username = :username AND password = :password AND isActive = 1 LIMIT 1")
+    suspend fun getUserByCredentials(username: String, password: String): User?
 }

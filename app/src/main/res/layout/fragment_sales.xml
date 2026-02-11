@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F5F5F5">
@@ -11,7 +11,7 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Sale Total Display -->
+    <!-- Current Sale Total Display -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -73,245 +73,25 @@
                 android:gravity="center"
                 android:layout_marginBottom="20dp"/>
 
-            <!-- Podipp -->
+            <!-- Dynamic Items Container -->
             <LinearLayout
+                android:id="@+id/container_sale_items"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:text="Podipp"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
-
-                <EditText
-                    android:id="@+id/et_podipp_qty"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:hint="Qty"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:inputType="numberDecimal"
-                    android:background="@drawable/edittext_bg"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="kg @"
-                    android:textSize="14sp"
-                    android:layout_marginEnd="4dp"/>
-
-                <EditText
-                    android:id="@+id/et_podipp_price"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:hint="₹10"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:inputType="numberDecimal"
-                    android:background="@drawable/edittext_bg"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="8dp"/>
-
-                <TextView
-                    android:id="@+id/tv_podipp_total"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:text="₹0"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#2E7D32"
-                    android:gravity="center"/>
-
+                android:orientation="vertical">
+                <!-- Items will be added dynamically -->
             </LinearLayout>
 
-            <!-- Chilly -->
-            <LinearLayout
+            <TextView
+                android:id="@+id/tv_no_products"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:text="Chilly"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
-
-                <EditText
-                    android:id="@+id/et_chilly_qty"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:hint="Qty"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:inputType="numberDecimal"
-                    android:background="@drawable/edittext_bg"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="kg @"
-                    android:textSize="14sp"
-                    android:layout_marginEnd="4dp"/>
-
-                <EditText
-                    android:id="@+id/et_chilly_price"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:hint="₹25"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:inputType="numberDecimal"
-                    android:background="@drawable/edittext_bg"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="8dp"/>
-
-                <TextView
-                    android:id="@+id/tv_chilly_total"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:text="₹0"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#2E7D32"
-                    android:gravity="center"/>
-
-            </LinearLayout>
-
-            <!-- Malli -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:text="Malli"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
-
-                <EditText
-                    android:id="@+id/et_malli_qty"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:hint="Qty"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:inputType="numberDecimal"
-                    android:background="@drawable/edittext_bg"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="kg @"
-                    android:textSize="14sp"
-                    android:layout_marginEnd="4dp"/>
-
-                <EditText
-                    android:id="@+id/et_malli_price"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:hint="₹15"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:inputType="numberDecimal"
-                    android:background="@drawable/edittext_bg"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="8dp"/>
-
-                <TextView
-                    android:id="@+id/tv_malli_total"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:text="₹0"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#2E7D32"
-                    android:gravity="center"/>
-
-            </LinearLayout>
-
-            <!-- Unda -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="16dp">
-
-                <TextView
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:text="Unda"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
-
-                <EditText
-                    android:id="@+id/et_unda_qty"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:hint="Qty"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:inputType="numberDecimal"
-                    android:background="@drawable/edittext_bg"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="pc @"
-                    android:textSize="14sp"
-                    android:layout_marginEnd="4dp"/>
-
-                <EditText
-                    android:id="@+id/et_unda_price"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_weight="1"
-                    android:hint="₹6"
-                    android:textSize="16sp"
-                    android:gravity="center"
-                    android:inputType="numberDecimal"
-                    android:background="@drawable/edittext_bg"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="8dp"/>
-
-                <TextView
-                    android:id="@+id/tv_unda_total"
-                    android:layout_width="60dp"
-                    android:layout_height="wrap_content"
-                    android:text="₹0"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#2E7D32"
-                    android:gravity="center"/>
-
-            </LinearLayout>
+                android:text="No products available.\nAdd products from Dashboard."
+                android:textSize="16sp"
+                android:textColor="#999999"
+                android:gravity="center"
+                android:padding="20dp"
+                android:visibility="gone"/>
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
@@ -323,7 +103,7 @@
         android:orientation="horizontal"
         android:layout_marginBottom="20dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_clear_all"
             android:layout_width="0dp"
             android:layout_height="60dp"
@@ -332,10 +112,10 @@
             android:text="Clear All"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:background="#F44336"
-            android:textColor="#FFFFFF" />
+            style="@style/Widget.MaterialComponents.Button"
+            app:backgroundTint="@color/red_500" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_complete_sale"
             android:layout_width="0dp"
             android:layout_height="60dp"
@@ -344,22 +124,36 @@
             android:text="Complete Sale"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:background="#4CAF50"
-            android:textColor="#FFFFFF" />
+            style="@style/Widget.MaterialComponents.Button"
+            app:backgroundTint="@color/green_500" />
 
     </LinearLayout>
 
-    <!-- Add New Product Button -->
-    <Button
-        android:id="@+id/btn_add_new_item"
+    <!-- View All Sales Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_view_all_sales"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="+ Add New Product/Service"
+        android:text="View All Sales"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:background="#2196F3"
-        android:textColor="#FFFFFF"
-        android:layout_marginBottom="16dp" />
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        app:strokeColor="@color/purple_500"
+        android:textColor="@color/purple_500" />
+
+    <!-- Debug: Check Products Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_debug_check_products"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="16dp"
+        android:text="Debug: Check Products"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        app:strokeColor="@color/red_500"
+        android:textColor="@color/red_500" />
+
 
 </LinearLayout>
 </ScrollView>
