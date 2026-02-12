@@ -29,8 +29,36 @@ class FirebaseAuthManager {
             val firebaseUser = authResult.user ?: throw Exception("User is null after sign in")
 
             // Fetch user data from Firestore
-            val firestoreUser = fetchUserFromFirestore(firebaseUser.uid)
-                ?: throw Exception("User data not found in Firestore")
+            var firestoreUser = fetchUserFromFirestore(firebaseUser.uid)
+
+            // If user doesn't exist in Firestore, create it
+            if (firestoreUser == null) {
+                Log.w(TAG, "User not found in Firestore, creating new document")
+
+                // Extract username from email
+                val username = firebaseUser.email?.substringBefore("@") ?: "user"
+                val displayName = firebaseUser.displayName ?: username
+
+                // Determine role based on email
+                val role = if (firebaseUser.email == "admin@shopkeeperpro.com") "admin" else "user"
+
+                firestoreUser = FirestoreUser(
+                    id = firebaseUser.uid,
+                    username = username,
+                    displayName = displayName,
+                    email = firebaseUser.email ?: "",
+                    role = role,
+                    isActive = true
+                )
+
+                // Save to Firestore
+                firestore.collection(FirebaseConfig.Collections.USERS)
+                    .document(firebaseUser.uid)
+                    .set(firestoreUser)
+                    .await()
+
+                Log.d(TAG, "Created Firestore user document for: $username")
+            }
 
             val localUser = firestoreUser.toLocalUser()
             Result.success(localUser)

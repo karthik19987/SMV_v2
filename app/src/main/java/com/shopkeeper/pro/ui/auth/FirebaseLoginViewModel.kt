@@ -122,12 +122,16 @@ class FirebaseLoginViewModel(application: Application) : AndroidViewModel(applic
                     // Login as admin after creating demo users
                     login("admin@shopkeeperpro.com", "admin123")
                 } else {
+                    // If creation fails, try logging in (accounts might already exist)
                     _loginState.value = LoginState.Error(
-                        "Failed to create demo users. They might already exist."
+                        "Demo users already exist. Please login with:\nAdmin: admin / admin123\nUser: user1 / user1234"
                     )
+                    // Auto-attempt login after a delay
+                    kotlinx.coroutines.delay(2000)
+                    login("admin@shopkeeperpro.com", "admin123")
                 }
             } catch (e: Exception) {
-                _loginState.value = LoginState.Error("Failed to create demo users: ${e.message}")
+                _loginState.value = LoginState.Error("Error: ${e.message}")
             }
         }
     }

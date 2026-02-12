@@ -32,21 +32,37 @@ import java.util.Date
 import com.shopkeeper.pro.databinding.FragmentSalesBinding
 import com.shopkeeper.pro.databinding.ItemSaleProductBinding
 import java.text.NumberFormat
-import java.util.*
+import java.util.Locale
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import com.google.android.material.button.MaterialButton
+import com.shopkeeper.pro.data.dao.SaleDao
+import kotlinx.coroutines.flow.collectLatest
+import com.shopkeeper.pro.data.firebase.FirebaseConfig
+import com.shopkeeper.pro.data.firebase.FirebaseSyncRepository
 
 class SalesFragment : Fragment() {
 
     private var _binding: FragmentSalesBinding? = null
     private val binding get() = _binding!!
     private val viewModel: SalesViewModel by viewModels()
+    private val fragmentViewModel: SalesFragmentViewModel by viewModels()
+    private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
+    private val database by lazy { ShopKeeperDatabase.getDatabase(requireContext()) }
+    private val saleDao by lazy { database.saleDao() }
+    private var observeJob: Job? = null
+    private val firebaseSyncRepository = FirebaseSyncRepository()
 
-    private lateinit var database: ShopKeeperDatabase
-    private lateinit var saleDao: com.shopkeeper.pro.data.dao.SaleDao
-
+    // Map to track product views for quick access
     private val productViews = mutableMapOf<String, ProductViewHolder>()
-    private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale("hi", "IN")).apply {
-        currency = Currency.getInstance("INR")
-    }
+
+    data class ProductViewHolder(
+        val product: Item,
+        val quantityField: EditText,
+        val priceField: EditText,
+        val totalField: TextView,
+        val binding: ItemSaleProductBinding
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,151 +70,170 @@ class SalesFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSalesBinding.inflate(inflater, container, false)
-        database = ShopKeeperDatabase.getDatabase(requireContext())
-        saleDao = database.saleDao()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupUI()
-        // Observe products - will automatically update when database changes
+
+        Log.d("SalesFragment", "onViewCreated called")
+
+        // Add debug button temporarily
+        addDebugButton()
+
+        observeTodaySales()
+        setupButtons()
         observeProducts()
+
+        // Force immediate refresh
+        viewModel.refreshProducts()
+
+        // Setup customer info listeners
+        setupCustomerInfoListeners()
     }
 
-    private fun setupUI() {
-        // Action buttons
-        binding.btnClearAll.setOnClickListener { clearAllFields() }
-        binding.btnCompleteSale.setOnClickListener { completeSale() }
-        binding.btnViewAllSales.setOnClickListener {
-            startActivity(Intent(requireContext(), ViewAllSalesActivity::class.java))
+    private fun addDebugButton() {
+        val debugButton = MaterialButton(requireContext()).apply {
+            text = "Check Products & Firebase"
+            setOnClickListener {
+                checkProductsInDatabase()
+                checkFirebaseConnection()
+            }
         }
+        binding.root.addView(debugButton, 0)
+    }
 
-        // Debug button
-        binding.btnDebugCheckProducts.setOnClickListener {
-            checkProductsInDatabase()
+    private fun checkFirebaseConnection() {
+        lifecycleScope.launch {
+            try {
+                val userId = FirebaseConfig.getCurrentUserId()
+                val storeId = FirebaseConfig.getCurrentStoreId()
+
+                Log.d("SalesFragment", "Firebase User ID: $userId")
+                Log.d("SalesFragment", "Firebase Store ID: $storeId")
+
+                if (userId != null) {
+                    Toast.makeText(context, "Firebase Connected! User: $userId", Toast.LENGTH_LONG).show()
+
+                    // Try to sync a test sale
+                    val testSale = Sale(
+                        id = "test_${System.currentTimeMillis()}",
+                        userId = userId,
+                        totalAmount = 100.0,
+                        items = "Test Item,1,100,100,kg",
+                        createdAt = Date(),
+                        paymentMethod = "cash",
+                        syncStatus = "pending"
+                    )
+
+                    val result = firebaseSyncRepository.syncSaleToFirestore(testSale)
+                    if (result.isSuccess) {
+                        Toast.makeText(context, "✅ Firebase sync successful! Check Firestore console.", Toast.LENGTH_LONG).show()
+                        Log.d("SalesFragment", "Test sale synced to Firebase successfully")
+                    } else {
+                        Toast.makeText(context, "❌ Firebase sync failed: ${result.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                        Log.e("SalesFragment", "Firebase sync failed", result.exceptionOrNull())
+                    }
+                } else {
+                    Toast.makeText(context, "❌ Not logged in to Firebase!", Toast.LENGTH_LONG).show()
+                    Log.e("SalesFragment", "No Firebase user ID - not authenticated")
+                }
+            } catch (e: Exception) {
+                Log.e("SalesFragment", "Firebase connection check failed", e)
+                Toast.makeText(context, "Firebase error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun setupCustomerInfoListeners() {
+        // Add text change listeners for customer info if needed
+    }
+
+    private fun observeTodaySales() {
+        // Today's sales is displayed in a different fragment
+        fragmentViewModel.todaySales.observe(viewLifecycleOwner) { total ->
+            // Update total display if needed
         }
     }
 
     private fun observeProducts() {
-        // Use viewLifecycleOwner for proper lifecycle management
-        viewLifecycleOwner.lifecycleScope.launch {
+        Log.d("SalesFragment", "Starting to observe products")
+
+        // Cancel any existing observation
+        observeJob?.cancel()
+
+        observeJob = viewLifecycleOwner.lifecycleScope.launch {
             viewModel.activeProducts.collect { products ->
                 Log.d("SalesFragment", "Received ${products.size} products from database")
-                products.forEach { product ->
-                    Log.d("SalesFragment", "Product in list: ${product.name}")
-                }
                 updateProductList(products)
             }
         }
     }
 
     private fun updateProductList(products: List<Item>) {
+        Log.d("SalesFragment", "Updating product list with ${products.size} products")
+
         // Clear existing views
         binding.containerSaleItems.removeAllViews()
         productViews.clear()
 
         if (products.isEmpty()) {
-            Log.d("SalesFragment", "No products available, showing empty message")
-            binding.tvNoProducts.visibility = View.VISIBLE
-            binding.containerSaleItems.visibility = View.GONE
-            updateTotalAmount()
-        } else {
-            Log.d("SalesFragment", "Displaying ${products.size} products")
-            binding.tvNoProducts.visibility = View.GONE
-            binding.containerSaleItems.visibility = View.VISIBLE
-
-            // Add a view for each product
-            products.forEach { product ->
-                Log.d("SalesFragment", "Adding product: ${product.name} (${product.id})")
-                val productBinding = ItemSaleProductBinding.inflate(
-                    layoutInflater,
-                    binding.containerSaleItems,
-                    false
-                )
-
-                // Set product name and unit
-                productBinding.tvProductName.text = product.name
-                productBinding.tvUnit.text = product.unit
-
-                // Set price hint if available
-                product.pricePerKg?.let { price ->
-                    productBinding.etPrice.hint = price.toString()
-                }
-
-                // Create holder to track this product's views
-                val holder = ProductViewHolder(
-                    product = product,
-                    quantityField = productBinding.etQuantity,
-                    priceField = productBinding.etPrice,
-                    totalField = productBinding.tvTotal
-                )
-                productViews[product.id] = holder
-
-                // Set up text watchers
-                setupItemTextWatchers(
-                    productBinding.etQuantity,
-                    productBinding.etPrice,
-                    productBinding.tvTotal
-                )
-
-                // Set up keyboard navigation
-                if (productViews.size > 1) {
-                    val previousHolder = productViews.values.toList()[productViews.size - 2]
-                    setupKeyboardForEditText(previousHolder.priceField, productBinding.etQuantity)
-                }
-                setupKeyboardForEditText(productBinding.etQuantity, productBinding.etPrice)
-
-                // This will be updated after all products are added
-                if (products.last() == product) {
-                    setupKeyboardForEditText(productBinding.etPrice, null)
-                } else {
-                    // Will be updated in the next iteration
-                }
-
-                // Add to container
-                binding.containerSaleItems.addView(productBinding.root)
+            Log.w("SalesFragment", "No products to display")
+            // Add a message view
+            val emptyView = TextView(requireContext()).apply {
+                text = "No products available. Please add products first."
+                setPadding(16, 16, 16, 16)
             }
-
-            // Update keyboard navigation for the last product of previous iteration
-            if (products.size > 1) {
-                for (i in 0 until products.size - 1) {
-                    val currentHolder = productViews[products[i].id]!!
-                    val nextHolder = productViews[products[i + 1].id]!!
-                    setupKeyboardForEditText(currentHolder.priceField, nextHolder.quantityField)
-                }
-            }
-
-            updateTotalAmount()
+            binding.containerSaleItems.addView(emptyView)
+            return
         }
+
+        // Add product views
+        products.forEach { product ->
+            Log.d("SalesFragment", "Adding product view for: ${product.name}")
+            addProductView(product)
+        }
+
+        // Update UI state
+        binding.btnCompleteSale.isEnabled = true
     }
 
-    private fun setupItemTextWatchers(qtyField: EditText, priceField: EditText, totalField: TextView) {
-        val textWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                updateItemTotal(qtyField, priceField, totalField)
-                updateTotalAmount()
-            }
+    private fun addProductView(product: Item) {
+        val itemBinding = ItemSaleProductBinding.inflate(layoutInflater, binding.containerSaleItems, false)
+
+        itemBinding.tvProductName.text = product.name
+        itemBinding.tvUnit.text = "per ${product.unit}"
+
+        // Set default price if available
+        product.pricePerKg?.let { price ->
+            itemBinding.etPrice.setText(price.toString())
         }
 
-        qtyField.addTextChangedListener(textWatcher)
-        priceField.addTextChangedListener(textWatcher)
+        val viewHolder = ProductViewHolder(
+            product = product,
+            quantityField = itemBinding.etQuantity,
+            priceField = itemBinding.etPrice,
+            totalField = itemBinding.tvTotal,
+            binding = itemBinding
+        )
+
+        productViews[product.id] = viewHolder
+
+        // Setup text watchers
+        setupTextWatcher(itemBinding.etQuantity, itemBinding.etPrice, itemBinding.tvTotal)
+        setupTextWatcher(itemBinding.etPrice, itemBinding.etQuantity, itemBinding.tvTotal)
+
+        // Setup enter key navigation
+        setupEnterKeyNavigation(itemBinding.etQuantity, itemBinding.etPrice)
+        val nextIndex = productViews.size
+        if (nextIndex < viewModel.activeProducts.value.size) {
+            // Will be connected to next product's quantity field when it's added
+        }
+
+        binding.containerSaleItems.addView(itemBinding.root)
     }
 
-    private fun setupKeyboardForEditText(editText: EditText, nextEditText: EditText?) {
-        editText.setOnClickListener {
-            editText.requestFocus()
-            showKeyboard(editText)
-        }
-
-        editText.setOnFocusChangeListener { view, hasFocus ->
-            if (hasFocus) {
-                showKeyboard(view as EditText)
-            }
-        }
-
+    private fun setupEnterKeyNavigation(editText: EditText, nextEditText: EditText?) {
         // Handle Enter key to move to next field
         editText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_NEXT || actionId == EditorInfo.IME_ACTION_DONE) {
@@ -251,29 +286,34 @@ class SalesFragment : Fragment() {
     private fun getItemTotal(qtyField: EditText, priceField: EditText): Double {
         val price = priceField.text.toString().toDoubleOrNull() ?: 0.0
         val quantity = if (price > 0 && qtyField.text.isEmpty()) {
-            1.0 // Default quantity is 1 when price is entered but quantity is empty
+            1.0
         } else {
             qtyField.text.toString().toDoubleOrNull() ?: 0.0
         }
         return quantity * price
     }
 
-    private fun clearAllFields() {
-        if (hasAnyValues()) {
-            android.app.AlertDialog.Builder(requireContext())
-                .setTitle("Clear All")
-                .setMessage("Are you sure you want to clear all fields?")
-                .setPositiveButton("Yes") { _, _ ->
-                    clearFields()
-                }
-                .setNegativeButton("No", null)
-                .show()
-        }
+    private fun setupTextWatcher(triggerField: EditText, otherField: EditText, totalField: TextView) {
+        triggerField.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                updateItemTotal(
+                    if (triggerField.hint.toString().contains("Qty")) triggerField else otherField,
+                    if (triggerField.hint.toString().contains("Price")) triggerField else otherField,
+                    totalField
+                )
+                updateTotalAmount()
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
     }
 
-    private fun hasAnyValues(): Boolean {
-        return productViews.values.any { holder ->
-            holder.quantityField.text.isNotEmpty() || holder.priceField.text.isNotEmpty()
+    private fun setupButtons() {
+        binding.btnCompleteSale.setOnClickListener { showConfirmationDialog() }
+        binding.btnClearAll.setOnClickListener { clearFields() }
+        binding.btnViewAllSales.setOnClickListener {
+            startActivity(Intent(requireContext(), ViewAllSalesActivity::class.java))
         }
     }
 
@@ -283,18 +323,16 @@ class SalesFragment : Fragment() {
             holder.priceField.text.clear()
             holder.totalField.text = "₹0"
         }
-
         updateTotalAmount()
-        Toast.makeText(requireContext(), "All fields cleared", Toast.LENGTH_SHORT).show()
     }
 
-    private fun completeSale() {
+    private fun showConfirmationDialog() {
         val grandTotal = productViews.values.sumOf { holder ->
             getItemTotal(holder.quantityField, holder.priceField)
         }
 
-        if (grandTotal <= 0) {
-            Toast.makeText(requireContext(), "Please add items to complete the sale", Toast.LENGTH_SHORT).show()
+        if (grandTotal == 0.0) {
+            Toast.makeText(requireContext(), "Please add at least one item", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -400,47 +438,22 @@ class SalesFragment : Fragment() {
                 val itemDao = database.itemDao()
                 val allProducts = itemDao.getAllActiveItemsOnce()
                 val message = StringBuilder()
-                message.append("Products in database: ${allProducts.size}\n\n")
-
+                message.append("Found ${allProducts.size} products in database:\n")
                 allProducts.forEach { product ->
-                    message.append("• ${product.name} (${product.id})\n")
-                    message.append("  Category: ${product.category}\n")
-                    message.append("  Unit: ${product.unit}\n")
-                    message.append("  Active: ${product.isActive}\n")
-                    message.append("  Price: ₹${product.pricePerKg ?: "N/A"}\n\n")
+                    message.append("- ${product.name} (${product.id})\n")
                 }
-
-                if (allProducts.isEmpty()) {
-                    message.append("No products found in database!\n")
-                    message.append("Please add products from Dashboard → Products")
-                }
-
-                // Also check what the ViewModel has
-                val viewModelProducts = viewModel.activeProducts.value
-                message.append("\nViewModel has: ${viewModelProducts.size} products")
-
-                android.app.AlertDialog.Builder(requireContext())
-                    .setTitle("Debug: Product Status")
-                    .setMessage(message.toString())
-                    .setPositiveButton("OK", null)
-                    .show()
+                Log.d("SalesFragment", message.toString())
+                Toast.makeText(requireContext(), message.toString(), Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_LONG).show()
                 Log.e("SalesFragment", "Error checking products", e)
+                Toast.makeText(requireContext(), "Error checking products: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        observeJob?.cancel()
         _binding = null
     }
-
-    // Helper class to hold references to product views
-    private data class ProductViewHolder(
-        val product: Item,
-        val quantityField: EditText,
-        val priceField: EditText,
-        val totalField: TextView
-    )
 }
