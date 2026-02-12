@@ -40,6 +40,8 @@ abstract class ShopKeeperDatabase : RoomDatabase() {
                 // Update role values from cashier to user
                 database.execSQL("UPDATE users SET role = 'user' WHERE role = 'cashier'")
                 database.execSQL("UPDATE users SET role = 'admin' WHERE role = 'owner'")
+                // Set specific password for admin user
+                database.execSQL("UPDATE users SET password = 'admin123' WHERE username = 'admin' AND role = 'admin'")
             }
         }
 
