@@ -12,7 +12,7 @@ import com.shopkeeper.pro.data.entity.*
 
 @Database(
     entities = [User::class, Item::class, Sale::class, Expense::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -45,6 +45,18 @@ abstract class ShopKeeperDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add sync status to sales and expenses
+                database.execSQL("ALTER TABLE sales ADD COLUMN syncStatus TEXT NOT NULL DEFAULT 'pending'")
+                database.execSQL("ALTER TABLE expenses ADD COLUMN syncStatus TEXT NOT NULL DEFAULT 'pending'")
+
+                // Add customer info to sales
+                database.execSQL("ALTER TABLE sales ADD COLUMN customerName TEXT")
+                database.execSQL("ALTER TABLE sales ADD COLUMN customerPhone TEXT")
+            }
+        }
+
         fun getDatabase(context: Context): ShopKeeperDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -52,7 +64,7 @@ abstract class ShopKeeperDatabase : RoomDatabase() {
                     ShopKeeperDatabase::class.java,
                     "shopkeeper_database"
                 )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .build()
                 INSTANCE = instance
                 instance

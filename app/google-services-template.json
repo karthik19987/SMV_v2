@@ -1,0 +1,39 @@
+{
+  "_comment": "This is a template file. To set up Firebase:",
+  "_instructions": [
+    "1. Go to https://console.firebase.google.com/",
+    "2. Create a new project or select existing one",
+    "3. Click 'Add app' and select Android",
+    "4. Package name: com.shopkeeper.pro",
+    "5. Download google-services.json",
+    "6. Replace this file with the downloaded google-services.json",
+    "7. Place it in the app/ directory"
+  ],
+  "project_info": {
+    "project_number": "YOUR_PROJECT_NUMBER",
+    "project_id": "YOUR_PROJECT_ID",
+    "storage_bucket": "YOUR_STORAGE_BUCKET"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "YOUR_APP_ID",
+        "android_client_info": {
+          "package_name": "com.shopkeeper.pro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "YOUR_API_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -13,7 +13,8 @@ data class Expense(
     val description: String,
     val amount: Double,
     val createdAt: Date,
-    val imageUri: String? = null
+    val imageUri: String? = null,
+    val syncStatus: String = "pending" // pending, synced, failed
 )
 
 enum class ExpenseCategory {

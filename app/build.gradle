@@ -4,7 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
     id 'jacoco'
-    // id 'com.google.gms.google-services' // Temporarily disabled - need proper google-services.json
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -64,11 +64,14 @@ dependencies {
     implementation 'androidx.room:room-ktx:2.6.1'
     kapt 'androidx.room:room-compiler:2.6.1'
     
-    // Firebase - Temporarily disabled until proper google-services.json is added
-    // implementation platform('com.google.firebase:firebase-bom:32.7.0')
-    // implementation 'com.google.firebase:firebase-auth-ktx'
-    // implementation 'com.google.firebase:firebase-firestore-ktx'
-    // implementation 'com.google.firebase:firebase-analytics-ktx'
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+
+    // WorkManager for background sync
+    implementation 'androidx.work:work-runtime-ktx:2.9.0'
     
     // RecyclerView
     implementation 'androidx.recyclerview:recyclerview:1.3.2'

@@ -12,7 +12,10 @@ data class Sale(
     val totalAmount: Double,
     val items: String, // JSON string of SaleItem list
     val createdAt: Date,
-    val paymentMethod: String = "cash"
+    val paymentMethod: String = "cash",
+    val customerName: String? = null,
+    val customerPhone: String? = null,
+    val syncStatus: String = "pending" // pending, synced, failed
 )
 
 data class SaleItem(
