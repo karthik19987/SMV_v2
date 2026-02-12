@@ -100,7 +100,9 @@ class SalesFragment : Fragment() {
                 checkFirebaseConnection()
             }
         }
-        binding.root.addView(debugButton, 0)
+        // Add to the LinearLayout inside the ScrollView, not the ScrollView itself
+        val container = binding.root.getChildAt(0) as? LinearLayout
+        container?.addView(debugButton, 0)
     }
 
     private fun checkFirebaseConnection() {
