@@ -34,8 +34,8 @@ This guide will walk you through setting up Firebase for your ShopKeeper Pro app
 ## Step 4: Enable Required Firebase Services
 
 ### A. Enable Authentication
-1. In Firebase Console, go to "Authentication" → "Get started"
-2. Enable "Email/Password" sign-in method
+1. In
+Password" sign-in method
 3. Click "Save"
 
 ### B. Enable Firestore Database
@@ -94,7 +94,8 @@ service cloud.firestore {
 ## Step 5: Create Test Users
 
 The app includes a "Create Demo Users" button that will create:
-- **Admin**: admin@shopkeeperpro.com / admin123
+- **Admin**: admin@shopkeeperpr
+o.com / admin123
 - **User**: user1@shopkeeperpro.com / user1234
 
 Or create your own users via Firebase Console:

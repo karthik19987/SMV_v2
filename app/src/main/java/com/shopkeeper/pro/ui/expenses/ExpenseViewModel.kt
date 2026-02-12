@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.shopkeeper.pro.data.database.ShopKeeperDatabase
 import com.shopkeeper.pro.data.entity.Expense
 import com.shopkeeper.pro.data.entity.ExpenseCategory
+import com.shopkeeper.pro.data.sync.SyncWorker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
@@ -72,6 +73,9 @@ class ExpenseViewModel(application: Application) : AndroidViewModel(application)
                 expenseDao.insertExpense(expense)
                 loadTodayExpenses() // Refresh today's total
                 _saveState.value = SaveState.Success
+
+                // Trigger sync to Firebase
+                SyncWorker.triggerImmediateSync(getApplication())
 
             } catch (e: Exception) {
                 e.printStackTrace()

@@ -13,9 +13,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
-    
+
     private lateinit var binding: ActivityLoginBinding
-    private val viewModel: LoginViewModel by viewModels()
+    private val viewModel: FirebaseLoginViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,8 +25,6 @@ class LoginActivity : AppCompatActivity() {
         setupUI()
         observeViewModel()
 
-        // Debug: Check existing users
-        debugCheckUsers()
     }
 
     private fun setupUI() {
@@ -50,17 +48,27 @@ class LoginActivity : AppCompatActivity() {
                 imm?.hideSoftInputFromWindow(view.windowToken, 0)
             }
 
-            viewModel.login(username, password)
+            // Convert username to email if needed
+            val email = if (username.contains("@")) {
+                username
+            } else {
+                "$username@shopkeeperpro.com"
+            }
+            viewModel.login(email, password)
         }
 
         binding.btnCreateUser.setOnClickListener {
-            // For now, create a demo user
-            viewModel.createDemoUser()
+            viewModel.createDemoUsers()
         }
 
         binding.btnResetPassword.setOnClickListener {
-            viewModel.resetAdminPassword()
-            Toast.makeText(this, "Admin password reset to 'admin123'", Toast.LENGTH_SHORT).show()
+            // For Firebase, this would trigger a password reset email
+            val email = binding.etUsername.text.toString().trim()
+            if (email.contains("@")) {
+                viewModel.forgotPassword(email)
+            } else {
+                Toast.makeText(this, "Please enter an email address first", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -97,9 +105,4 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun debugCheckUsers() {
-        lifecycleScope.launch {
-            viewModel.debugGetAllUsers()
-        }
-    }
 }

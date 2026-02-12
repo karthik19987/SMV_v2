@@ -22,6 +22,7 @@ import com.shopkeeper.pro.data.database.ShopKeeperDatabase
 import com.shopkeeper.pro.data.entity.Item
 import com.shopkeeper.pro.data.entity.Sale
 import com.shopkeeper.pro.data.entity.SaleItem
+import com.shopkeeper.pro.data.sync.SyncWorker
 import com.shopkeeper.pro.ui.auth.UserPreferences
 import org.json.JSONArray
 import org.json.JSONObject
@@ -376,6 +377,9 @@ class SalesFragment : Fragment() {
                 saleDao.insertSale(sale)
                 Toast.makeText(requireContext(), "Sale completed successfully!", Toast.LENGTH_SHORT).show()
                 clearFields()
+
+                // Trigger sync to Firebase
+                SyncWorker.triggerImmediateSync(requireContext())
             } catch (e: Exception) {
                 Toast.makeText(requireContext(), "Error saving sale: ${e.message}", Toast.LENGTH_SHORT).show()
             }
