@@ -1,36 +1,65 @@
 {
   "project_info": {
-    "project_number": "123456789000",
-    "project_id": "shopkeeper-pro-temp",
-    "storage_bucket": "shopkeeper-pro-temp.appspot.com"
+    "project_number": "264679662436",
+    "firebase_url": "https://smv-app-59c94-default-rtdb.firebaseio.com",
+    "project_id": "smv-app-59c94",
+    "storage_bucket": "smv-app-59c94.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:123456789000:android:0000000000000000000000",
+        "mobilesdk_app_id": "1:264679662436:android:2f06580e9a37941f5e5071",
         "android_client_info": {
-          "package_name": "com.shopkeeper.pro"
+          "package_name": "com.example.admin"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "123456789000-00000000000000000000000000000000.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD-TEMP-KEY-REPLACE-WITH-REAL"
+          "current_key": "AIzaSyBlg0xhPJcVTDZ9-vuDkLriZ4DZAuFUJkg"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "123456789000-00000000000000000000000000000000.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:264679662436:android:d703b6b6f250d78b5e5071",
+        "android_client_info": {
+          "package_name": "com.example.smv_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlg0xhPJcVTDZ9-vuDkLriZ4DZAuFUJkg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:264679662436:android:adc4933e7c5905965e5071",
+        "android_client_info": {
+          "package_name": "com.shopkeeper.pro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlg0xhPJcVTDZ9-vuDkLriZ4DZAuFUJkg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
         }
       }
     }
